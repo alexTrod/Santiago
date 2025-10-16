@@ -27,10 +27,6 @@ cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_sch
 for row in cursor.fetchall():
     print(f"  public.{row[0]}")
 
-print("\n--- Test direct query ---")
-cursor.execute("SELECT COUNT(*) FROM markets LIMIT 1;")
-print("Direct markets query works:", cursor.fetchone())
-
 print("\n--- Check table permissions ---")
 cursor.execute("SELECT has_table_privilege('public', 'markets', 'SELECT');")
 print("Has SELECT on markets:", cursor.fetchone())
