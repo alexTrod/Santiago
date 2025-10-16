@@ -15,7 +15,7 @@ DB_CONFIG = {
     'dbname': os.getenv('DB_NAME', 'Gulf'),
     'user': os.getenv('DB_USER', 'postgres'),
     'password': os.getenv('DB_PASSWORD', 'santiago'),
-    'host': os.getenv('DB_HOST', 'localhost'),
+    'host': os.getenv('DB_HOST', '127.0.0.1'),
     'port': os.getenv('DB_PORT', '5432')
 }
 
@@ -24,6 +24,12 @@ async def fetch_polymarket_data():
     Fetch market data and prices from Polymarket API and store in TimescaleDB
     """
     conn = psycopg2.connect(**DB_CONFIG)
+    
+    cursor = conn.cursor()
+    cursor.execute("SET search_path TO public;")
+    conn.commit()
+    cursor.close()
+    
     timestamp = datetime.utcnow()
     print("starting up")
     async with aiohttp.ClientSession() as session:
