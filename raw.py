@@ -12,9 +12,9 @@ from db_utils import (
 
 # Database configuration
 DB_CONFIG = {
-    'dbname': os.getenv('DB_NAME', 'polymarket'),
+    'dbname': os.getenv('DB_NAME', 'Gulf'),
     'user': os.getenv('DB_USER', 'postgres'),
-    'password': os.getenv('DB_PASSWORD', ''),
+    'password': os.getenv('DB_PASSWORD', 'santiago'),
     'host': os.getenv('DB_HOST', 'localhost'),
     'port': os.getenv('DB_PORT', '5432')
 }
@@ -25,18 +25,18 @@ async def fetch_polymarket_data():
     """
     conn = psycopg2.connect(**DB_CONFIG)
     timestamp = datetime.utcnow()
-    
+    print("starting up")
     async with aiohttp.ClientSession() as session:
         async with session.get('https://clob.polymarket.com/markets') as resp:
             response = await resp.json()
-            
+            print(f"response : {response}")
             markets = response if isinstance(response, list) else response.get('data', [])
             
             processed_count = 0
             price_snapshots = []
             
             for market in markets:
-                if market.get('active') and not market.get('closed'):
+                if market.get('active') or  market.get('closed'):
                     print(f"Processing: {market['question'][:60]}...")
                     
                     try:
@@ -59,7 +59,7 @@ async def fetch_polymarket_data():
 async def main():
     while True:
         await fetch_polymarket_data()
-        await asyncio.sleep(30)
+        await asyncio.sleep(10)
 
 if __name__ == "__main__":
     asyncio.run(main())

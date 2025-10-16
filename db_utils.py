@@ -5,12 +5,14 @@ from typing import Dict, Any, List
 
 def insert_market(conn, market: Dict[str, Any]):
     cursor = conn.cursor()
-    
+    print(f"cursor : {cursor}")
     end_date = market.get('end_date_iso')
+    print(f"end_data = {end_date}")
     if end_date:
         end_date = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
     
     game_start = market.get('game_start_time')
+    print(game_start)
     if game_start:
         game_start = datetime.fromisoformat(game_start.replace('Z', '+00:00'))
     
@@ -37,6 +39,7 @@ def insert_market(conn, market: Dict[str, Any]):
         RETURNING market_id;
     """
     
+
     cursor.execute(query, (
         market.get('condition_id') or market.get('market_slug'), 
         market.get('condition_id'),
