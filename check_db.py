@@ -22,19 +22,18 @@ cursor.execute("SELECT schema_name FROM information_schema.schemata;")
 for row in cursor.fetchall():
     print(row[0])
 
-print("\n--- Tables named 'markets' in any schema ---")
-cursor.execute("SELECT table_schema, table_name FROM information_schema.tables WHERE schema_name = 'public';")
-results = cursor.fetchall()
-if results:
-    for row in results:
-        print(f"  {row[0]}.{row[1]}")
-else:
-    print("  NO 'markets' table found!")
-
 print("\n--- All tables in public schema ---")
-cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' ORDER BY table_name;")
+cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema = %s ORDER BY table_name;", ('public',))
 for row in cursor.fetchall():
     print(f"  public.{row[0]}")
+
+print("\n--- Test direct query ---")
+cursor.execute("SELECT COUNT(*) FROM markets LIMIT 1;")
+print("Direct markets query works:", cursor.fetchone())
+
+print("\n--- Check table permissions ---")
+cursor.execute("SELECT has_table_privilege('public', 'markets', 'SELECT');")
+print("Has SELECT on markets:", cursor.fetchone())
 
 cursor.close()
 conn.close()
