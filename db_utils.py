@@ -15,7 +15,7 @@ def insert_market(conn, market: Dict[str, Any]):
         game_start = datetime.fromisoformat(game_start.replace('Z', '+00:00'))
     
     query = """
-        INSERT INTO markets (
+        INSERT INTO public.markets (
             market_id, condition_id, question_id, question, description, market_slug,
             active, closed, archived, accepting_orders, enable_order_book,
             end_date_iso, game_start_time, minimum_order_size, minimum_tick_size,
