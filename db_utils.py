@@ -5,9 +5,7 @@ from typing import Dict, Any, List
 
 def insert_market(conn, market: Dict[str, Any]):
     cursor = conn.cursor()
-    print(f"cursor : {cursor}")
     end_date = market.get('end_date_iso')
-    print(f"end_data = {end_date}")
     if end_date:
         end_date = datetime.fromisoformat(end_date.replace('Z', '+00:00'))
     
@@ -38,46 +36,52 @@ def insert_market(conn, market: Dict[str, Any]):
             updated_at = CURRENT_TIMESTAMP
         RETURNING market_id;
     """
-    
 
-    cursor.execute(query, (
-        market.get('condition_id') or market.get('market_slug'), 
-        market.get('condition_id'),
-        market.get('question_id'),
-        market.get('question'),
-        market.get('description'),
-        market.get('market_slug'),
-        market.get('active', False),
-        market.get('closed', False),
-        market.get('archived', False),
-        market.get('accepting_orders', False),
-        market.get('enable_order_book', False),
-        end_date,
-        game_start,
-        market.get('minimum_order_size'),
-        market.get('minimum_tick_size'),
-        market.get('maker_base_fee', 0),
-        market.get('taker_base_fee', 0),
-        market.get('seconds_delay', 0),
-        market.get('fpmm'),
-        market.get('neg_risk', False),
-        market.get('neg_risk_market_id'),
-        market.get('neg_risk_request_id'),
-        market.get('notifications_enabled', True),
-        market.get('is_50_50_outcome', False),
-        market.get('icon'),
-        market.get('image'),
-        market.get('tags', []),
-        Json(market.get('rewards', {})),
-        Json(market.get('tokens', [])),
-        datetime.utcnow(),
-        datetime.utcnow()
-    ))
-    
-    market_id = cursor.fetchone()[0]
-    conn.commit()
-    cursor.close()
-    return market_id
+    try:
+        cursor.execute(query, (
+            market.get('condition_id') or market.get('market_slug'), 
+            market.get('condition_id'),
+            market.get('question_id'),
+            market.get('question'),
+            market.get('description'),
+            market.get('market_slug'),
+            market.get('active', False),
+            market.get('closed', False),
+            market.get('archived', False),
+            market.get('accepting_orders', False),
+            market.get('enable_order_book', False),
+            end_date,
+            game_start,
+            market.get('minimum_order_size'),
+            market.get('minimum_tick_size'),
+            market.get('maker_base_fee', 0),
+            market.get('taker_base_fee', 0),
+            market.get('seconds_delay', 0),
+            market.get('fpmm'),
+            market.get('neg_risk', False),
+            market.get('neg_risk_market_id'),
+            market.get('neg_risk_request_id'),
+            market.get('notifications_enabled', True),
+            market.get('is_50_50_outcome', False),
+            market.get('icon'),
+            market.get('image'),
+            market.get('tags', []),
+            Json(market.get('rewards', {})),
+            Json(market.get('tokens', [])),
+            datetime.utcnow(),
+            datetime.utcnow()
+        ))
+        
+        market_id = cursor.fetchone()[0]
+        conn.commit()
+        cursor.close()
+        return market_id
+    except Exception as e:
+        print(f"ERROR executing query: {e}")
+        print(f"Market data: {market.get('question')[:50]}")
+        conn.rollback()
+        cursor.close()
+        raise
 
 
 def insert_price_snapshot(conn, market_id: str, token: Dict[str, Any], timestamp: datetime = None):
