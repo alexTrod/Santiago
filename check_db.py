@@ -23,7 +23,7 @@ for row in cursor.fetchall():
     print(row[0])
 
 print("\n--- Tables named 'markets' in any schema ---")
-cursor.execute("SELECT table_schema, table_name FROM information_schema.tables WHERE table_name = 'markets';")
+cursor.execute("SELECT table_schema, table_name FROM information_schema.tables WHERE schema_name = 'public';")
 results = cursor.fetchall()
 if results:
     for row in results:
