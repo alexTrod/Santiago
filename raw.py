@@ -16,7 +16,7 @@ DB_CONFIG = {
     'user': os.getenv('DB_USER', 'XX'),
     'password': os.getenv('DB_PASSWORD', 'XX'),
     'host': os.getenv('DB_HOST', '127.0.0.1'),
-    'port': os.getenv('DB_PORT', '5432')
+    'port': os.getenv('DB_PORT', '5433')
 }
 
 async def fetch_polymarket_data():
