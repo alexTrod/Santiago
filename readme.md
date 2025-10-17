@@ -1,4 +1,3 @@
-salam
 
 useful command : 
 
