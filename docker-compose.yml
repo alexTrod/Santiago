@@ -7,8 +7,8 @@ services:
     container_name: timescaledb
     restart: unless-stopped
     environment:
-      - POSTGRES_PASSWORD=santiago
-      - POSTGRES_DB=Gulf
+      - POSTGRES_PASSWORD=XX
+      - POSTGRES_DB=XX
     ports:
       - "0.0.0.0:5432:5432"
     volumes:
