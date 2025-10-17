@@ -27,7 +27,7 @@ def insert_market(conn, market: Dict[str, Any]):
             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
             %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
         )
-        ON CONFLICT (market_id) DO UPDATE SET
+        ON CONFLICT (market_id, created_at) DO UPDATE SET
             active = EXCLUDED.active,
             closed = EXCLUDED.closed,
             archived = EXCLUDED.archived,
