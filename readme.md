@@ -24,10 +24,10 @@ Database:Gulf (\c gulf to connect to it in psql)
 - [ ] grafana 
 - [ ] TimeScaleDB (with PostgreSQL)
 - [ ] maybe redis
-
 ___
 
 ### next step
 - [ ] data ingestion
-- [ ] fix vps exposure to access postgresql
+check whatsup with polymarket API (only retrieving 941 markets for now)
+- [X] fix vps exposure to access postgresql
 - [ ] everything else
