@@ -14,10 +14,10 @@ sudo -u postgres psql
 Database:Gulf (\c gulf to connect to it in psql)
 
 ### features  
-- [ ] insider trading detection & investigration
+- [ ] insider trading detection & investigation
 - [ ] tracking whales 
 - [ ] social media sentiment analysis per market/outcome
-- [ ] market gap analysis for atbitrage opportunity
+- [ ] market gap analysis for arbitrage opportunity
 
 ### tech stack mvp 
 
