@@ -46,7 +46,7 @@ async def fetch_polymarket_data():
                     print(f"Processing: {market['question'][:60]}...")
                     
                     try:
-                        await insert_market(conn, market)
+                        insert_market(conn, market)
                         processed_count += 1
                         
                         if processed_count >= 1:
