@@ -13,8 +13,8 @@ from db_utils import (
 # Database configuration
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME', 'Gulf'),
-    'user': os.getenv('DB_USER', ''),
-    'password': os.getenv('DB_PASSWORD', ''),
+    'user': os.getenv('DB_USER', 'XX'),
+    'password': os.getenv('DB_PASSWORD', 'XX'),
     'host': os.getenv('DB_HOST', '127.0.0.1'),
     'port': os.getenv('DB_PORT', '5433')
 }
@@ -36,12 +36,13 @@ async def fetch_polymarket_data():
     total_processed = 0
     offset = 0
     limit = 100
-    
+    single = False
     async with aiohttp.ClientSession() as session:
-        while True:
+        while True or single :
             print(f"Fetching markets with offset={offset}, limit={limit}")
-            
+            single = True
             async with session.get(f'https://clob.polymarket.com/markets?limit={limit}&offset={offset}') as resp:
+                print(f'reaching with url: https://clob.polymarket.com/markets?limit={limit}&offset={offset}')
                 response = await resp.json()
                 markets = response if isinstance(response, list) else response.get('data', [])
                 
@@ -49,7 +50,13 @@ async def fetch_polymarket_data():
                     print("No more markets to process")
                     break
                 
-                print(f"Received {len(markets)} markets from API")
+                print(f"received {len(markets)} markets ")
+                
+                if len(markets) < limit:
+                    print(f"received {len(markets)} markets (less than limit {limit}), this is the last page")
+                    last_page = True
+                else:
+                    last_page = False
                 
                 page_processed = 0
                 for market in markets:
@@ -67,7 +74,9 @@ async def fetch_polymarket_data():
                 
                 print(f"Processed {page_processed} markets from this page")
                 offset += limit
-                
+                if last_page or True:
+                    print("reached last page, stopping pagination")
+                    break
                 await asyncio.sleep(1)
     
     print(f"Total processed: {total_processed} markets")
