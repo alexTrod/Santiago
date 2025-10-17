@@ -32,40 +32,48 @@ async def fetch_polymarket_data():
     
     timestamp = datetime.utcnow()
     print("starting up")
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://clob.polymarket.com/markets') as resp:
-            response = await resp.json()
-            print(f"response : {response}")
-            markets = response if isinstance(response, list) else response.get('data', [])
-            
-            processed_count = 0
-            price_snapshots = []
-            
-            for market in markets:
-                if market.get('active') or  market.get('closed'):
-                    print(f"Processing: {market['question'][:60]}...")
-                    
-                    try:
-                        insert_market(conn, market)
-                        processed_count += 1
-                        
-                        if processed_count >= 1:
-                            break
-                            
-                    except Exception as e:
-                        print(f"  Error processing market: {e}")
-                        continue
-            
-
-            
-            print(f" processed {processed_count} markets")
     
-    conn.close()
+    total_processed = 0
+    offset = 0
+    limit = 100
+    
+    async with aiohttp.ClientSession() as session:
+        while True:
+            print(f"Fetching markets with offset={offset}, limit={limit}")
+            
+            async with session.get(f'https://clob.polymarket.com/markets?limit={limit}&offset={offset}') as resp:
+                response = await resp.json()
+                markets = response if isinstance(response, list) else response.get('data', [])
                 
+                if not markets:
+                    print("No more markets to process")
+                    break
+                
+                print(f"Received {len(markets)} markets from API")
+                
+                page_processed = 0
+                for market in markets:
+                    if market.get('active') or market.get('closed'):
+                        print(f"Processing: {market['question'][:60]}...")
+                        
+                        try:
+                            insert_market(conn, market)
+                            page_processed += 1
+                            total_processed += 1
+                            
+                        except Exception as e:
+                            print(f"  Error processing market: {e}")
+                            continue
+                
+                print(f"Processed {page_processed} markets from this page")
+                offset += limit
+                
+                await asyncio.sleep(1)
+    
+    print(f"Total processed: {total_processed} markets")
+    conn.close()
 async def main():
-    while True:
-        await fetch_polymarket_data()
-        await asyncio.sleep(10)
+    await fetch_polymarket_data()
 
 if __name__ == "__main__":
     asyncio.run(main())
