@@ -28,6 +28,13 @@ ___
 
 ### next step
 - [ ] data ingestion
-check whatsup with polymarket API (only retrieving 941 markets for now)
+- check whatsup with polymarket API (only retrieving xx markets for now)
 - [X] fix vps exposure to access postgresql
 - [ ] everything else
+
+*data ingestion*
+- [ ] remove crypto and sports
+- [ ] retrieve data market per market -> order market according to whatever we want (most volumes first / some specific categories)
+___
+- [ ] get a network of slugs
+- events > markets
