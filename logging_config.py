@@ -1,10 +1,12 @@
 import logging
+import os
 from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 
-# Create a handler that rotates daily
+os.makedirs('log', exist_ok=True)
+
 file_handler = TimedRotatingFileHandler(
-    filename=f'ingestion_{datetime.now().strftime("%Y-%m-%d")}.log',
+    filename=f'log/ingestion_{datetime.now().strftime("%Y-%m-%d")}.log',
     when='midnight',
     interval=1,
     backupCount=30
