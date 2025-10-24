@@ -19,16 +19,18 @@ DB_CONFIG = {
     'port': os.getenv('DB_PORT')
 }
 
-async def fetch_polymarket_data_(conn, endpoint: str):
+filters_gamma_url = lambda: f'limit={limit_field}&offset={offset_field}&order={order_field}&ascending={asc_field}'
+filters_data_url = lambda: f'limit={limit_field}&offset={offset_field}'
+
+async def fetch_polymarket_data_(conn, base_url: str, endpoint: str, filters: str):
     logger.info(f"Fetching {endpoint} data")
-    url = BASE_URL + endpoint
-    offset = 0
     last_page = False
     page_processed = 0
     total_processed = 0
+    offset = 9000
     async with aiohttp.ClientSession() as session:
         while not last_page:
-            async with session.get(f'{url}?limit={limit_field}&offset={offset}&order={order_field}&ascending={asc_field}') as resp:
+            async with session.get(f'{base_url}/{endpoint}?{filters}') as resp:
                 response = await resp.json()
                 data = response if isinstance(response, list) else response.get('data', [])
                 offset += limit_field
@@ -51,21 +53,22 @@ async def fetch_polymarket_data_(conn, endpoint: str):
     conn.close()
 
 async def fetch_polymarket_data_markets(conn):
-    await fetch_polymarket_data_(conn, MARKETS_ENDPOINT)
+    await fetch_polymarket_data_(conn, BASE_DATA_URL, MARKETS_ENDPOINT, filters_data_url())
 
 async def fetch_polymarket_data_events(conn):
-    await fetch_polymarket_data_(conn, EVENTS_ENDPOINT)
+    await fetch_polymarket_data_(conn, BASE_DATA_URL, EVENTS_ENDPOINT, filters_data_url())
 
+async def fetch_polymarket_data_trades(conn):
+    await fetch_polymarket_data_(conn, BASE_DATA_URL, TRADES_ENDPOINT, filters_gamma_url())
+    
 async def fetch_polymarket_data_tags(conn):
-    await fetch_polymarket_data_(conn, TAGS_ENDPOINT)
+    await fetch_polymarket_data_(conn, BASE_GAMMA_URL, TAGS_ENDPOINT, filters_data_url())
 
 async def main():
     #await fetch_polymarket_data()
     conn = psycopg2.connect(**DB_CONFIG)
-    await fetch_polymarket_data_events(conn)
-    # pause
-    time.sleep(100)
-    await fetch_polymarket_data_markets(conn)
+    #time.sleep(100)
+    await fetch_polymarket_data_trades(conn)
     conn.close()
 if __name__ == "__main__":
     asyncio.run(main())
