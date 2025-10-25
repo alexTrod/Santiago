@@ -1,5 +1,7 @@
 # path
-BASE_URL = 'https://gamma-api.polymarket.com/'
+BASE_GAMMA_URL = 'https://gamma-api.polymarket.com/'
+BASE_DATA_URL = 'https://data-api.polymarket.com/'
+TRADES_ENDPOINT = 'trades'
 TAGS_ENDPOINT = 'tags'
 EVENTS_ENDPOINT = 'events'
 MARKETS_ENDPOINT = 'markets'

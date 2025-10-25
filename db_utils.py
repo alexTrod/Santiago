@@ -7,7 +7,68 @@ from logging_config import get_logger
 
 logger = get_logger(__name__)
 
-
+def insert_trades(conn, trade: Dict[str, Any]):
+    cursor = conn.cursor()
+    
+    # Convert Unix timestamp to datetime
+    trade_time = datetime.fromtimestamp(trade.get('timestamp', 0))
+    
+    columns = [
+        'proxy_wallet', 'transaction_hash', 'condition_id', 'side', 'asset',
+        'size', 'price', 'timestamp', 'trade_time', 'title', 'slug', 'icon',
+        'event_slug', 'outcome', 'outcome_index', 'name', 'pseudonym', 'bio',
+        'profile_image', 'profile_image_optimized', 'created_at'
+    ]
+    placeholders = ', '.join(['%s'] * len(columns))
+    
+    query = f"""
+        INSERT INTO public.trades (
+            {', '.join(columns)}
+        ) VALUES (
+            {placeholders}
+        )
+        ON CONFLICT (trade_time, proxy_wallet, condition_id, transaction_hash) DO UPDATE SET
+            size = EXCLUDED.size,
+            price = EXCLUDED.price
+        RETURNING proxy_wallet;
+    """
+    
+    try:
+        cursor.execute(query, (
+            trade.get('proxyWallet'),
+            trade.get('transactionHash'),
+            trade.get('conditionId'),
+            trade.get('side'),
+            trade.get('asset'),
+            trade.get('size'),
+            trade.get('price'),
+            trade.get('timestamp'),
+            trade_time,
+            trade.get('title'),
+            trade.get('slug'),
+            trade.get('icon'),
+            trade.get('eventSlug'),
+            trade.get('outcome'),
+            trade.get('outcomeIndex'),
+            trade.get('name'),
+            trade.get('pseudonym'),
+            trade.get('bio'),
+            trade.get('profileImage'),
+            trade.get('profileImageOptimized'),
+            datetime.utcnow()
+        ))
+        
+        proxy_wallet = cursor.fetchone()[0]
+        conn.commit()
+        logger.info(f"Trade inserted - Wallet: {proxy_wallet}, Condition: {trade.get('conditionId')}, Side: {trade.get('side')}, Size: {trade.get('size')}")
+        return proxy_wallet
+    except Exception as e:
+        error_msg = f"Failed to insert trade - Wallet: {trade.get('proxyWallet')}, Condition: {trade.get('conditionId', 'N/A')}"
+        logger.error(f"{error_msg} | Error: {str(e)}")
+        logger.debug(f"Full trade data: {trade}")
+        conn.rollback()
+        return None
+    
 def insert_market(conn, market: Dict[str, Any]):
     cursor = conn.cursor()
     end_date = market.get('end_date_iso')
@@ -79,10 +140,9 @@ def insert_market(conn, market: Dict[str, Any]):
             market.get('createdAt'),
             market.get('updatedAt')
         ))
-        logger.info(f"market inserted: {market.get('id')}, date: {market}")
+        logger.info(f"created at: {market.get('createdAt')}, id: {market.get('id')}")
         market_id = cursor.fetchone()[0]
         conn.commit()
-        logger.info(f"market inserted: {market_id}, data: {market}")
         return market_id
     except Exception as e:
         error_msg = f"Failed to insert market - ID: {market.get('id')}, Question: {market.get('question', 'N/A')[:100]}"
@@ -215,6 +275,7 @@ def insert_event(conn, event: Dict[str, Any]):
         
         event_id = cursor.fetchone()[0]
         conn.commit()
+        logger.info(f"event created at: {event.get('createdAt')}, event id: {event.get('id')}")
         return event_id
     except Exception as e:
         error_msg = f"Failed to insert event - ID: {event.get('id')}, Title: {event.get('title', 'N/A')[:100]}"
@@ -264,7 +325,7 @@ def insert_tags(conn, tags: List[Dict[str, Any]]):
             tags.get('isCarousel')
             ))
         conn.commit()
-        logger.info(f"tag inserted: {tags.get('id')}, data: {tags}")
+        logger.info(f"tag created at: {tags.get('createdAt')}, tag id: {tags.get('id')}")
         return cursor.fetchone()[0]
     except Exception as e:
         error_msg = f"Failed to insert tag - ID: {tags.get('id')}, Label: {tags.get('label', 'N/A')}"
@@ -280,5 +341,7 @@ def insert_item(conn, item: Dict[str, Any], endpoint: str):
         return insert_event(conn, item)
     elif endpoint == TAGS_ENDPOINT:
         return insert_tags(conn, item)
+    elif endpoint == TRADES_ENDPOINT:
+        return insert_trades(conn, item)
     else:
         raise ValueError(f"Invalid endpoint: {endpoint}")
