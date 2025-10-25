@@ -32,13 +32,14 @@ ___
 - [X] fix vps exposure to access postgresql
 - [ ] everything else
 
-### information
-
-**What are [Proxy Wallets](https://docs.polymarket.com/developers/proxy-wallet)?** 
-- When a user first uses Polymarket.com to trade they are prompted to create a wallet. When they do this, a 1 of 1 multisig is deployed to Polygon which is controlled/owned by the accessing EOA (either MetaMask wallet or MagicLink wallet). This proxy wallet is where all the user’s positions (ERC1155) and USDC (ERC20) are held.
 *data ingestion*
 - [ ] remove crypto and sports
 - [ ] retrieve data market per market -> order market according to whatever we want (most volumes first / some specific categories)
 ___
 - [ ] get a network of slugs
 - events > markets
+
+### information
+
+**What are [Proxy Wallets](https://docs.polymarket.com/developers/proxy-wallet)?** 
+- When a user first uses Polymarket.com to trade they are prompted to create a wallet. When they do this, a 1 of 1 multisig is deployed to Polygon which is controlled/owned by the accessing EOA (either MetaMask wallet or MagicLink wallet). This proxy wallet is where all the user’s positions (ERC1155) and USDC (ERC20) are held.
